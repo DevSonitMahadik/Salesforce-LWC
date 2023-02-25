@@ -40,14 +40,9 @@
                 <label for="" class="slds-form-element__label" ><b>Query</b></label>
                 <lightning-textarea name="query" 
                                     label="" 
-                                    value ={criteria}>
+                                    value ={criteria}
+                                    onchange={ChangeincriteriaHandler}>
                 </lightning-textarea>
-                <lightning-button variant="brand" 
-                                  label="Submit" 
-                                  title="Primary action" 
-                                  onclick={handleClick} 
-                                  class="slds-m-left_x-small slds-align_absolute-center">
-                </lightning-button>
                 <lightning-button variant="brand" 
                                   label="Get Data" 
                                   title="Primary action" 
@@ -61,15 +56,6 @@
                     <p>Please check your field Selected</p>
                 </template>
                 <template if:true={dataTableTemplate}>
-                    <!-- <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
-                        <thead>
-                        <tr class="slds-line-height_reset">
-                            <template for:each={arrayToHoldSelectedFields} for:item="acc">
-                                <td key={acc} class="slds-truncate">{acc}</td>
-                            </template>
-                        </tr>
-                    </thead>
-                    </table> -->
                     <lightning-datatable
                     key-field="id"
                      data={dataset}
