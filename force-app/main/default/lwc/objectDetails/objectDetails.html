@@ -1,0 +1,70 @@
+<template>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_4-of-5">
+        <lightning-card class="slds-table">
+            <div class="slds-p-around_medium">
+                <label for="" class="slds-form-element__label" ><b>{text}</b></label>
+            <lightning-combobox name="progress"
+                                label=''
+                                value={objectvalue}
+                                placeholder="Select Object"
+                                options={objects}
+                                onchange={handleChange} >
+            </lightning-combobox>
+            <template if:true={fieldForSearch}>
+                <section class="slds-accordion__section slds-is-open">
+                    <label for="" class="slds-form-element__label" ><b>Select field for Search</b></label>
+                    <div class="slds-grid slds-wrap">
+                        <template for:each={objectFieldList} 
+                                  for:item="listkey">
+                            <p class="slds-col slds-size_4-of-12 " key={listkey}>
+                            <lightning-input type="checkbox" 
+                                                label={listkey.value} 
+                                                data-fieldtype={listkey.label}
+                                                onchange={checkboxflip}
+                                                >
+                            </lightning-input>
+                            </p>                           
+                        </template>
+                        <template for:each={arrayToHoldSelectedFields}
+                                      for:item="badgeitem">
+                                <lightning-badge key={badgeitem} label={badgeitem} class="slds-badge_inverse" onclick={checkboxflip}></lightning-badge>
+                        </template>
+                    </div>
+                </section>
+                <template if:true={spinneron}>
+                    <div class="backgroundInverse">
+                        <lightning-spinner alternative-text="Loading" variant="inverse"></lightning-spinner>
+                    </div>
+                </template>
+                <label for="" class="slds-form-element__label" ><b>Query</b></label>
+                <lightning-textarea name="query" 
+                                    label="" 
+                                    value ={criteria}
+                                    onchange={ChangeincriteriaHandler}>
+                </lightning-textarea>
+                <lightning-button variant="brand" 
+                                  label="Get Data" 
+                                  title="Primary action" 
+                                  onclick={getDatafromServer} 
+                                  class="slds-m-left_x-small slds-align_absolute-center">
+                </lightning-button>
+                <template if:true={fireErrorForSyntax}>
+                    <p>Please check your query Syntax</p>
+                </template>
+                <template if:true={fireErrorForApiName}>
+                    <p>Please check your field Selected</p>
+                </template>
+                <template if:true={dataTableTemplate}>
+                    <lightning-datatable
+                    key-field="id"
+                     data={dataset}
+                    columns={columns}>
+                </lightning-datatable>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+    </div>
+    </div>
+</template>
