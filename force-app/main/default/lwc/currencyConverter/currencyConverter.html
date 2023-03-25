@@ -1,0 +1,36 @@
+<template>
+    <lightning-card title="Currency Conversion Pannel">
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col">
+                <div class="slds-m-around_medium">
+                    <select class="slds-select" id="select-01" onchange={checkforslectionoption1}>
+                        <template for:each={currencyCode} for:item="acc11">
+                            <option key={acc11}>{acc11}</option>
+                        </template>
+                    </select>
+            </div>
+            </div>
+            <div class="slds-col">
+                <div class="slds-m-around_medium">
+                    <select class="slds-select" id="select-02" onchange={checkforslectionoption2}>
+                        <template for:each={currencyCode} for:item="acc22">
+                            <option key={acc22}>{acc22}</option>
+                        </template>
+                    </select>
+            </div>
+            </div>
+          </div>
+          <div class="slds-grid slds-gutters">
+            <div class="slds-col">
+                <div class="slds-m-around_medium">
+                    <lightning-input type="text" value={value1} onchange={getValuefromTextBox1}></lightning-input>
+            </div>
+            </div>
+            <div class="slds-col">
+                <div class="slds-m-around_medium">
+                    <lightning-input type="text" value={value2} onchange={getValuefromTextBox2}></lightning-input>
+            </div>
+            </div>
+          </div>
+    </lightning-card>
+</template>
