@@ -1,70 +1,204 @@
 <template>
-    <div class="slds-grid slds-gutters">
-        <div class="slds-col slds-size_4-of-5">
-        <lightning-card class="slds-table">
-            <div class="slds-p-around_medium">
-                <label for="" class="slds-form-element__label" ><b>{text}</b></label>
-            <lightning-combobox name="progress"
-                                label=''
-                                value={objectvalue}
-                                placeholder="Select Object"
-                                options={objects}
-                                onchange={handleChange} >
-            </lightning-combobox>
+    <lightning-card title="Salesforce Object Explorer" icon-name="utility:database">
+        <div class="slds-p-around_medium">
+
+            <!-- Object Selector -->
+            <div class="section-header slds-m-bottom_small">
+                <h3 class="slds-text-heading_small slds-m-bottom_x-small">1. Select a Salesforce Object</h3>
+                <lightning-combobox
+                    label=""
+                    value={objectvalue}
+                    placeholder="Search and select an object..."
+                    options={objects}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Fields Section -->
             <template if:true={fieldForSearch}>
-                <section class="slds-accordion__section slds-is-open">
-                    <label for="" class="slds-form-element__label" ><b>Select field for Search</b></label>
-                    <div class="slds-grid slds-wrap">
-                        <template for:each={objectFieldList} 
-                                  for:item="listkey">
-                            <p class="slds-col slds-size_4-of-12 " key={listkey}>
-                            <lightning-input type="checkbox" 
-                                                label={listkey.value} 
-                                                data-fieldtype={listkey.label}
-                                                onchange={checkboxflip}
-                                                >
+                <div class="slds-box slds-box_x-small slds-m-top_medium section-box">
+                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+                        <h3 class="slds-text-heading_small">2. Select Fields</h3>
+                        <template if:true={recordCount}>
+                            <lightning-badge label={recordCountLabel} class="count-badge"></lightning-badge>
+                        </template>
+                    </div>
+
+                    <!-- Field Search -->
+                    <lightning-input
+                        type="search"
+                        label="Filter fields"
+                        placeholder="Type to filter fields..."
+                        value={fieldSearchTerm}
+                        onchange={handleFieldSearch}
+                        class="slds-m-bottom_small">
+                    </lightning-input>
+
+                    <!-- Field Checkboxes -->
+                    <div class="slds-grid slds-wrap field-grid">
+                        <template for:each={filteredFieldList} for:item="field">
+                            <div class="slds-col slds-size_4-of-12 slds-p-around_xx-small field-item" key={field.name}>
+                                <lightning-input
+                                    type="checkbox"
+                                    label={field.name}
+                                    checked={field.checked}
+                                    data-fieldname={field.name}
+                                    data-fieldtype={field.type}
+                                    onchange={handleCheckboxChange}>
+                                </lightning-input>
+                                <span class="field-type-badge">{field.type}</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Selected Fields Badges -->
+                    <template if:true={hasSelectedFields}>
+                        <div class="slds-m-top_small selected-fields-row">
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">Selected:</p>
+                            <div class="slds-grid slds-wrap">
+                                <template for:each={selectedFields} for:item="sf">
+                                    <lightning-badge key={sf} label={sf} class="slds-m-right_xx-small slds-m-bottom_xx-small field-badge"></lightning-badge>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Query Builder Section -->
+                <div class="slds-box slds-box_x-small slds-m-top_medium section-box">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">3. Build Your Query</h3>
+
+                    <!-- WHERE Clause -->
+                    <lightning-input
+                        type="text"
+                        label="WHERE Clause (optional)"
+                        placeholder="e.g. Name LIKE '%Acme%' AND IsActive = true"
+                        value={whereClause}
+                        onchange={handleWhereChange}
+                        class="slds-m-bottom_small">
+                    </lightning-input>
+
+                    <!-- ORDER BY and LIMIT -->
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="text"
+                                label="ORDER BY (optional)"
+                                placeholder="e.g. Name ASC"
+                                value={orderByClause}
+                                onchange={handleOrderByChange}>
                             </lightning-input>
-                            </p>                           
-                        </template>
-                        <template for:each={arrayToHoldSelectedFields}
-                                      for:item="badgeitem">
-                                <lightning-badge key={badgeitem} label={badgeitem} class="slds-badge_inverse" onclick={checkboxflip}></lightning-badge>
-                        </template>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="number"
+                                label="LIMIT"
+                                value={queryLimit}
+                                min="1"
+                                max="50000"
+                                onchange={handleLimitChange}>
+                            </lightning-input>
+                        </div>
                     </div>
-                </section>
-                <template if:true={spinneron}>
-                    <div class="backgroundInverse">
-                        <lightning-spinner alternative-text="Loading" variant="inverse"></lightning-spinner>
+
+                    <!-- Generated SOQL -->
+                    <div class="slds-m-top_small">
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small">
+                            <label class="slds-form-element__label"><strong>Generated SOQL</strong></label>
+                            <lightning-button-icon
+                                icon-name="utility:copy"
+                                variant="border-filled"
+                                size="small"
+                                title="Copy SOQL to clipboard"
+                                alternative-text="Copy SOQL"
+                                onclick={handleCopyQuery}>
+                            </lightning-button-icon>
+                        </div>
+                        <lightning-textarea
+                            name="query"
+                            label=""
+                            value={criteria}
+                            onchange={handleCriteriaChange}
+                            class="soql-textarea">
+                        </lightning-textarea>
                     </div>
-                </template>
-                <label for="" class="slds-form-element__label" ><b>Query</b></label>
-                <lightning-textarea name="query" 
-                                    label="" 
-                                    value ={criteria}
-                                    onchange={ChangeincriteriaHandler}>
-                </lightning-textarea>
-                <lightning-button variant="brand" 
-                                  label="Get Data" 
-                                  title="Primary action" 
-                                  onclick={getDatafromServer} 
-                                  class="slds-m-left_x-small slds-align_absolute-center">
-                </lightning-button>
+
+                    <!-- Action Buttons -->
+                    <div class="slds-grid slds-gutters slds-m-top_small">
+                        <div class="slds-col">
+                            <lightning-button
+                                variant="brand"
+                                label="Run Query"
+                                icon-name="utility:play"
+                                icon-position="left"
+                                onclick={getDatafromServer}
+                                disabled={isRunQueryDisabled}>
+                            </lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-button
+                                variant="neutral"
+                                label="Save Query"
+                                icon-name="utility:save"
+                                icon-position="left"
+                                onclick={saveMetadataRecord}
+                                disabled={isSaveDisabled}>
+                            </lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-button
+                                variant="destructive-text"
+                                label="Clear"
+                                icon-name="utility:clear"
+                                icon-position="left"
+                                onclick={handleClear}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Messages -->
                 <template if:true={fireErrorForSyntax}>
-                    <p>Please check your query Syntax</p>
+                    <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small" role="alert">
+                        <lightning-icon icon-name="utility:error" variant="inverse" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        <p>Query syntax error. Please review the SOQL and try again.</p>
+                    </div>
                 </template>
-                <template if:true={fireErrorForApiName}>
-                    <p>Please check your field Selected</p>
+
+                <!-- Loading Spinner -->
+                <template if:true={spinneron}>
+                    <div class="spinner-overlay slds-m-top_medium">
+                        <lightning-spinner alternative-text="Loading data..." variant="brand" size="medium"></lightning-spinner>
+                        <p class="slds-text-align_center slds-text-color_weak slds-m-top_xx-large">Running query...</p>
+                    </div>
                 </template>
+
+                <!-- Results Section -->
                 <template if:true={dataTableTemplate}>
-                    <lightning-datatable
-                    key-field="id"
-                     data={dataset}
-                    columns={columns}>
-                </lightning-datatable>
+                    <div class="slds-m-top_medium">
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+                            <h3 class="slds-text-heading_small">Results</h3>
+                            <lightning-badge label={resultCountLabel} class="count-badge"></lightning-badge>
+                        </div>
+                        <lightning-datatable
+                            key-field="Id"
+                            data={dataset}
+                            columns={columns}
+                            hide-checkbox-column>
+                        </lightning-datatable>
+                    </div>
                 </template>
+
+                <!-- Save Success -->
+                <template if:true={saveSuccess}>
+                    <div class="slds-notify slds-notify_toast slds-theme_success slds-m-top_small" role="status">
+                        <lightning-icon icon-name="utility:success" variant="inverse" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        <p>Query configuration saved successfully!</p>
+                    </div>
+                </template>
+
             </template>
+
         </div>
     </lightning-card>
-    </div>
-    </div>
 </template>
