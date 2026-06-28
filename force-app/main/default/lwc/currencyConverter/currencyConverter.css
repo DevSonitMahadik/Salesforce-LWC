@@ -1,0 +1,48 @@
+.converter-row {
+    margin-bottom: 0.5rem;
+}
+
+.swap-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 60px;
+    position: relative;
+}
+
+.spinner-label {
+    margin-top: 2.5rem;
+}
+
+.result-box {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+    border: 1px solid #1589ee;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(21, 137, 238, 0.15);
+}
+
+.result-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #032d60;
+    margin: 0 0 0.25rem 0;
+}
+
+.rate-label {
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.updated-label {
+    font-size: 0.75rem;
+    border-top: 1px solid #d9e8f9;
+    padding-top: 0.5rem;
+    margin-bottom: 0;
+}
