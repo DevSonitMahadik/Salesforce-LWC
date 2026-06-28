@@ -1,36 +1,121 @@
 <template>
-    <lightning-card title="Currency Conversion Pannel">
-        <div class="slds-grid slds-gutters">
-            <div class="slds-col">
-                <div class="slds-m-around_medium">
-                    <select class="slds-select" id="select-01" onchange={checkforslectionoption1}>
-                        <template for:each={currencyCode} for:item="acc11">
-                            <option key={acc11}>{acc11}</option>
-                        </template>
-                    </select>
+    <lightning-card title="Currency Converter" icon-name="utility:currency">
+        <div class="slds-p-around_medium">
+
+            <!-- From Currency Row -->
+            <div class="slds-grid slds-gutters slds-grid_vertical-align-end converter-row">
+                <div class="slds-col slds-size_5-of-12">
+                    <lightning-combobox
+                        label="From Currency"
+                        value={fromCurrency}
+                        options={currencyOptions}
+                        onchange={handleFromCurrencyChange}
+                        dropdown-alignment="auto">
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_7-of-12">
+                    <lightning-input
+                        type="number"
+                        label="Amount"
+                        value={fromAmount}
+                        min="0"
+                        step="any"
+                        placeholder="0.00"
+                        onchange={handleFromAmountChange}>
+                    </lightning-input>
+                </div>
             </div>
+
+            <!-- Swap Button -->
+            <div class="slds-grid slds-grid_align-center slds-m-vertical_small">
+                <div class="swap-wrapper">
+                    <lightning-button-icon
+                        icon-name="utility:replace"
+                        variant="brand"
+                        size="medium"
+                        onclick={handleSwap}
+                        title="Swap currencies"
+                        alternative-text="Swap currencies">
+                    </lightning-button-icon>
+                </div>
             </div>
-            <div class="slds-col">
-                <div class="slds-m-around_medium">
-                    <select class="slds-select" id="select-02" onchange={checkforslectionoption2}>
-                        <template for:each={currencyCode} for:item="acc22">
-                            <option key={acc22}>{acc22}</option>
-                        </template>
-                    </select>
+
+            <!-- To Currency Row -->
+            <div class="slds-grid slds-gutters slds-grid_vertical-align-end converter-row">
+                <div class="slds-col slds-size_5-of-12">
+                    <lightning-combobox
+                        label="To Currency"
+                        value={toCurrency}
+                        options={currencyOptions}
+                        onchange={handleToCurrencyChange}
+                        dropdown-alignment="auto">
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_7-of-12">
+                    <lightning-input
+                        type="number"
+                        label="Converted Amount"
+                        value={toAmount}
+                        step="any"
+                        placeholder="0.00"
+                        read-only>
+                    </lightning-input>
+                </div>
             </div>
+
+            <!-- Convert Button -->
+            <div class="slds-grid slds-grid_align-center slds-m-top_medium">
+                <lightning-button
+                    label="Convert"
+                    variant="brand"
+                    icon-name="utility:forward"
+                    icon-position="right"
+                    onclick={handleConvert}
+                    disabled={isLoading}>
+                </lightning-button>
             </div>
-          </div>
-          <div class="slds-grid slds-gutters">
-            <div class="slds-col">
-                <div class="slds-m-around_medium">
-                    <lightning-input type="text" value={value1} onchange={getValuefromTextBox1}></lightning-input>
-            </div>
-            </div>
-            <div class="slds-col">
-                <div class="slds-m-around_medium">
-                    <lightning-input type="text" value={value2} onchange={getValuefromTextBox2}></lightning-input>
-            </div>
-            </div>
-          </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="spinner-container slds-m-top_medium">
+                    <lightning-spinner
+                        alternative-text="Fetching exchange rate..."
+                        size="small"
+                        variant="brand">
+                    </lightning-spinner>
+                    <p class="slds-text-align_center slds-text-color_weak slds-m-top_large spinner-label">
+                        Fetching live exchange rate...
+                    </p>
+                </div>
+            </template>
+
+            <!-- Result Card -->
+            <template if:true={conversionResult}>
+                <div class="result-box slds-m-top_medium slds-p-around_medium">
+                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                        <div>
+                            <p class="result-amount">{conversionResult}</p>
+                            <p class="rate-label slds-text-color_weak slds-text-body_small">{rateLabel}</p>
+                        </div>
+                        <lightning-icon icon-name="utility:check" variant="success" size="small"></lightning-icon>
+                    </div>
+                    <template if:true={lastUpdated}>
+                        <p class="updated-label slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                            Rate as of: {lastUpdated}
+                        </p>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Error Banner -->
+            <template if:true={hasError}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_medium" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <lightning-icon icon-name="utility:error" variant="inverse" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                    <p>{errorMessage}</p>
+                </div>
+            </template>
+
+        </div>
     </lightning-card>
 </template>
