@@ -1,8 +1,68 @@
-p{
-    color: red;
+.section-box {
+    border: 1px solid #dddbda;
+    border-radius: 0.5rem;
+    background: #fafafa;
 }
-.backgroundInverse {
+
+.section-header h3,
+.section-box h3 {
+    color: #032d60;
+    font-weight: 600;
+}
+
+.field-grid {
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.375rem;
+    background: #fff;
+    padding: 0.5rem;
+}
+
+.field-item {
     position: relative;
-    background-color: #16325c;
-    height: 80px;
+    padding-bottom: 1.25rem !important;
+}
+
+.field-type-badge {
+    position: absolute;
+    bottom: 0.375rem;
+    left: 1.25rem;
+    font-size: 0.65rem;
+    color: #6b7280;
+    background: #f3f4f6;
+    border-radius: 0.25rem;
+    padding: 0.05rem 0.3rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.selected-fields-row {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.5rem;
+}
+
+.field-badge {
+    font-size: 0.75rem;
+}
+
+.soql-textarea lightning-textarea {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.count-badge {
+    background: #1589ee;
+    color: #fff;
+    border-radius: 1rem;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.spinner-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 80px;
+    position: relative;
 }
